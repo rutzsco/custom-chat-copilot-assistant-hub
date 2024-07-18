@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>a16dc1cb-7981-4b70-9ed5-0df5d2c0099a</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Services\Prompts\RAGChatSystemPrompt.txt" />
+    <None Remove="Services\Prompts\WeatherChatSystemPrompt.txt" />
+    <None Remove="Services\Prompts\WeatherChatUserPrompt.txt" />
+    <None Remove="Services\Prompts\WeatherLatLongSystemPrompt.txt" />
+    <None Remove="Services\Prompts\WeatherLocationSystemPrompt.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Services\Prompts\WeatherChatUserPrompt.txt" />
+    <EmbeddedResource Include="Services\Prompts\WeatherLatLongSystemPrompt.txt" />
+    <EmbeddedResource Include="Services\Prompts\WeatherChatSystemPrompt.txt" />
+    <EmbeddedResource Include="Services\Prompts\WeatherLocationSystemPrompt.txt" />
+    <EmbeddedResource Include="Services\Prompts\RAGChatSystemPrompt.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.7" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.41.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.14.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+</Project>
