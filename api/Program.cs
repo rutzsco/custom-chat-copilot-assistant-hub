@@ -1,3 +1,4 @@
+using Assistants.API;
 using Assistants.API.Core;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+if (app.Environment.IsProduction())
+{
+    app.UseMiddleware<ApiKeyMiddleware>();
 }
 
 app.UseHttpsRedirection();
