@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Assistants.Hub.API.csproj", "."]
-RUN dotnet restore "./Assistants.API.csproj"
+RUN dotnet restore "./Assistants.Hub.API.csproj"
 COPY . .
 WORKDIR "/src/."
 RUN dotnet build "./Assistants.Hub.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
