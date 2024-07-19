@@ -35,6 +35,7 @@ jobs:
       - name: Build & Push
         uses: docker/build-push-action@v2
         with:
+          context: ./app
           push: true
           tags: rutzscolabcr.azurecr.io/custom-chat-copilot/assistants-hub:${{ steps.date.outputs.tag }}
 
