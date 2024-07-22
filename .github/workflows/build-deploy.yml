@@ -63,3 +63,4 @@ jobs:
         run: |
           echo "IMAGE_NAME = $IMAGE_NAME"
           echo "IMAGE_VERSION = $IMAGE_VERSION"
+          az containerapp update --name assistanthubservice --resource-group rutzsco-chat-copilot-demo --image "rutzscolabcr.azurecr.io/custom-chat-copilot/assistants-hub:$IMAGE_VERSION"
