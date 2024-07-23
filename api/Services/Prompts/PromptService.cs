@@ -15,7 +15,7 @@ namespace Assistants.API.Services.Prompts
 
         public static string GetPromptByName(string prompt)
         {
-            var resourceName = $"Assistants.API.Services.Prompts.{prompt}.txt";
+            var resourceName = $"Assistants.Hub.API.Services.Prompts.{prompt}.txt";
             var assembly = Assembly.GetExecutingAssembly();
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             {
