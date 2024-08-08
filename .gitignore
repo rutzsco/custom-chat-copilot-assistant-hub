@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 api/Assistants.API/appsettings.Development.json
 api/appsettings.Development.json
+api/Assistants.API-local.http

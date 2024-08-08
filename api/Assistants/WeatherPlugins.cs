@@ -12,7 +12,7 @@ public class WeatherPlugins
 {
     [KernelFunction("GetForcast")]
     [Description("Determine the location latitude and longitude based on user request")]
-    [return: Description("An array of lights")]
+    [return: Description("A weather forcast")]
     public async Task<string> RetrieveWeatherForcastAsync([Description("chat History")] ChatTurn[] chatMessages,
                                                   LocationPoint LocationPoint,
                                                   KernelArguments arguments,
@@ -40,7 +40,7 @@ public class WeatherPlugins
 
     [KernelFunction("GetLocationLatLong")]
     [Description("Determine the location latitude and longitude based on user request")]
-    [return: Description("An array of lights")]
+    [return: Description("A location point consisting of a latitude and longitude")]
     public async Task<LocationPoint> DetermineLatLongAsync([Description("chat History")] ChatTurn[] chatMessages,
                                                            string WeatherLocation,
                                                            KernelArguments arguments,
