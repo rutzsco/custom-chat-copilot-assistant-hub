@@ -91,7 +91,6 @@ internal sealed class WeatherChatService
         OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
         {
             ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-
         };
         var result = await chatGpt.GetChatMessageContentAsync(chatHistory, executionSettings: openAIPromptExecutionSettings, kernel: kernel);
         return new ChatChunkResponse(result.Content, null);
