@@ -13,8 +13,7 @@ public class WeatherPlugins
     [KernelFunction("GetForcast")]
     [Description("Determine the location latitude and longitude based on user request")]
     [return: Description("A weather forcast")]
-    public async Task<string> RetrieveWeatherForcastAsync([Description("chat History")] ChatTurn[] chatMessages,
-                                                  LocationPoint LocationPoint,
+    public async Task<string> RetrieveWeatherForcastAsync([Description("chat History")] ChatTurn[] chatMessages, LocationPoint LocationPoint,
                                                   KernelArguments arguments,
                                                   Kernel kernel)
     {
