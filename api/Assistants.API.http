@@ -1,6 +1,26 @@
-@Assistants.API_HostAddress = http://localhost:5184
+@baseUrl = https://localhost:32769
 
-GET {{Assistants.API_HostAddress}}/weatherforecast/
-Accept: application/json
 
-###
+// C1
+
+POST {{baseUrl}}/api/chat/weather
+Content-Type: application/json
+
+[
+  {
+    "user": "What is the forcast for Mankato MN"
+  }
+]
+
+### C1
+
+POST {{baseUrl}}/api/chat/weather
+Content-Type: application/json
+
+[
+  {
+    "user": "string",
+    "assistant": "string"
+  }
+]
+

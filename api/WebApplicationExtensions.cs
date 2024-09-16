@@ -1,9 +1,10 @@
-﻿
-
+﻿using System;
+using Assistants.API.Core;
 using Microsoft.AspNetCore.Mvc;
 using MinimalApi.Services;
+using System.Runtime.CompilerServices;
 
-namespace Assistants.API.Core
+namespace Assistants.API
 {
     internal static class WebApplicationExtensions
     {
@@ -16,12 +17,15 @@ namespace Assistants.API.Core
             return app;
         }
 
-        private static async Task<IResult> ProcessWeatherRequest(ChatTurn[] request, [FromServices] WeatherChatService weatherChatService)
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] WeatherChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var r = await weatherChatService.ReplyPlannerAsync(request);
-            return Results.Ok(r);
+            await foreach (var chunk in weatherChatService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
+            {
+                yield return chunk;
+            }
         }
 
+ 
         private static async Task<IResult> ProcessWeatherPluginGet(string latitude, string longitude)
         {
             return Results.Ok("OK");

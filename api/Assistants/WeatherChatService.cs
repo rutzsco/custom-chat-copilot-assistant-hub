@@ -70,7 +70,7 @@ internal sealed class WeatherChatService
         return new ChatChunkResponse(sb.ToString(), null);
     }
 
-    public async Task<ChatChunkResponse> ReplyPlannerAsync(ChatTurn[] chatMessages, CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<ChatChunkResponse> ReplyPlannerAsync(ChatTurn[] chatMessages, CancellationToken cancellationToken = default)
     {
         var sw = Stopwatch.StartNew();
 
@@ -83,6 +83,7 @@ internal sealed class WeatherChatService
 
         // Chat Step
         var chatGpt = kernel.Services.GetService<IChatCompletionService>();
+        ArgumentNullException.ThrowIfNull(chatGpt, nameof(chatGpt));
 
         var chatHistory = new ChatHistory(PromptService.GetPromptByName("WeatherChatSystemPrompt"));
         var userMessage = await PromptService.RenderPromptAsync(kernel, PromptService.GetPromptByName("WeatherChatUserPrompt"), context);
@@ -91,8 +92,22 @@ internal sealed class WeatherChatService
         OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
         {
             ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
+            MaxTokens = 1024
+
         };
-        var result = await chatGpt.GetChatMessageContentAsync(chatHistory, executionSettings: openAIPromptExecutionSettings, kernel: kernel);
-        return new ChatChunkResponse(result.Content, null);
+  
+        var sb = new StringBuilder();
+        await foreach (StreamingChatMessageContent responseChunk in chatGpt.GetStreamingChatMessageContentsAsync(chatHistory, openAIPromptExecutionSettings, kernel, cancellationToken))
+        {
+            if (responseChunk.Content != null)
+            {
+                sb.Append(responseChunk.Content);
+                yield return new ChatChunkResponse(responseChunk.Content);
+                await Task.Yield();
+            }
+        }
+        sw.Stop();
+
+        yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString()));
     }
 }
