@@ -108,6 +108,6 @@ internal sealed class WeatherChatService
         }
         sw.Stop();
 
-        yield return new ChatChunkResponse(sb.ToString(), new ChatChunkResponseResult(sb.ToString()));
+        yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString()));
     }
 }
