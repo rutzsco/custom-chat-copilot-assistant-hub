@@ -18,8 +18,13 @@ namespace Assistants.API.Core
             kernels[kernel4DeploymentName] = kernel4;
         }
 
+        public void RegisterKernel(string deploymentName, Kernel kernel)
+        {
+            kernels[deploymentName] = kernel;
+        }
+
         // Retrieves the kernel based on the deployment name
-        private Kernel GetKernelByDeploymentName(string deploymentName)
+        public Kernel GetKernelByDeploymentName(string deploymentName)
         {
             if (kernels.ContainsKey(deploymentName))
             {

@@ -44,14 +44,23 @@ namespace Assistants.API.Core
                    .AddAzureOpenAIChatCompletion(deployedModelName4, azureOpenAiServiceEndpoint4, azureOpenAiServiceKey4)
                    .Build();
 
+
+                Kernel autoBody = Kernel.CreateBuilder()
+                   .AddAzureOpenAIChatCompletion(deployedModelName3, azureOpenAiServiceEndpoint3, azureOpenAiServiceKey3)
+                   .Build();
+
                 // Build Plugins
                 kernel3.Plugins.AddFromType<WeatherPlugins>("Weather");
                 kernel4.Plugins.AddFromType<WeatherPlugins>("Weather");
+                autoBody.Plugins.AddFromType<AutoDamageAnalysisTools>("AutoDamageAnalysisTools");
 
-                return new OpenAIClientFacade(deployedModelName3, kernel3, deployedModelName4, kernel4);
+                var facade =  new OpenAIClientFacade(deployedModelName3, kernel3, deployedModelName4, kernel4);
+                facade.RegisterKernel("AutoDamageAnalysis", autoBody);
+                return facade;
             });
 
             services.AddSingleton<WeatherChatService>();
+            services.AddSingleton<AutoDamageAnalysisChatService>();
             return services;
         }
     }

@@ -10,27 +10,20 @@ namespace MinimalApi.Services.Skills;
 
 public class AutoDamageAnalysisTools
 {
-
-
-    [KernelFunction("GetLocationLatLong")]
-    [Description("Determine the location latitude and longitude based on user request")]
-    [return: Description("A location point consisting of a latitude and longitude")]
-    public async Task<LocationPoint> DetermineDamageAsync([Description("data url of auto damage")] string dataUrlImage,
-                                                           KernelArguments arguments,
-                                                           Kernel kernel)
+    [KernelFunction("GetMakeAndModelAnalysis")]
+    [Description("Determine the make and model of vehicle for a given image.")]
+    [return: Description("the make and model of the vehicle")]
+    public async Task<string> DetermineDamageAsync([Description("image name")] string imageName,
+        KernelArguments arguments,
+        Kernel kernel)
     {
         var chatGpt = kernel.Services.GetService<IChatCompletionService>();
         ArgumentNullException.ThrowIfNull(chatGpt, nameof(chatGpt));
 
-        var chatHistory = new ChatHistory(PromptService.GetPromptByName("WeatherLatLongSystemPrompt"));
+        var chatHistory = new ChatHistory(PromptService.GetPromptByName("AutoBodyChatSystemPrompt"));
         //chatHistory.AddUserMessage(WeatherLocation);
 
         var searchAnswer = await chatGpt.GetChatMessageContentAsync(chatHistory, DefaultSettings.AISearchRequestSettings, kernel);
-
-        var parts = searchAnswer.Content.Split(',');
-        var lp = new LocationPoint { Latitude = parts[0].Trim(), Longitude = parts[1].Trim() };
-        arguments["LocationPoint"] = lp;
-        
-        return lp;
+        return searchAnswer.Content;
     }
 }

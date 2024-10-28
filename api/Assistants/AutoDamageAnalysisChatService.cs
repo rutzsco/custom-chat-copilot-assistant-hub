@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using Assistants.API.Core;
 using Assistants.API.Services.Prompts;
+using Assistants.Hub.API.Core;
 using Azure.AI.OpenAI;
 using Azure.Core;
 using Microsoft.SemanticKernel;
@@ -32,20 +33,28 @@ internal sealed class AutoDamageAnalysisChatService
     {
         var sw = Stopwatch.StartNew();
 
-        // Kernel setup
-        var kernel = _openAIClientFacade.GetKernel(false);
-
-        var context = new KernelArguments();
-        context["chatMessages"] = chatMessages;
-        context["question"] = chatMessages.LastOrDefault()?.User;
-
-        // Chat Step
+        // setup
+        var kernel = _openAIClientFacade.GetKernelByDeploymentName("AutoDamageAnalysis");
         var chatGpt = kernel.Services.GetService<IChatCompletionService>();
         ArgumentNullException.ThrowIfNull(chatGpt, nameof(chatGpt));
 
-        var chatHistory = new ChatHistory(PromptService.GetPromptByName("WeatherChatSystemPrompt"));
-        var userMessage = await PromptService.RenderPromptAsync(kernel, PromptService.GetPromptByName("WeatherChatUserPrompt"), context);
-        chatHistory.AddUserMessage(userMessage);
+        var context = new KernelArguments();
+        context["chatMessages"] = chatMessages;
+        var turn = chatMessages.LastOrDefault();
+
+        var chatHistory = new ChatHistory(PromptService.GetPromptByName("AutoBodyChatSystemPrompt"));
+        var chatMessageContentItemCollection = new ChatMessageContentItemCollection();
+        chatMessageContentItemCollection.Add(new TextContent(turn.User));
+
+        foreach (var file in turn.Files)
+        {
+            DataUriParser parser = new DataUriParser(file.DataUrl);
+            if (parser.MediaType == "image/jpeg" || parser.MediaType == "image/png")
+            {
+                chatMessageContentItemCollection.Add(new ImageContent(parser.Data, parser.MediaType));
+            }
+        }
+        chatHistory.AddUserMessage(chatMessageContentItemCollection);
 
         OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
         {

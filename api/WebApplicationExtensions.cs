@@ -12,14 +12,22 @@ namespace Assistants.API
         {
             var api = app.MapGroup("api");
             api.MapPost("chat/weather", ProcessWeatherRequest);
+            api.MapPost("chat/autobodydamageanalysis", ProcessAutoDamageAnalysis);
 
             api.MapGet("weather", ProcessWeatherPluginGet);
             return app;
         }
-
         private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] WeatherChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             await foreach (var chunk in weatherChatService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
+            {
+                yield return chunk;
+            }
+        }
+
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessAutoDamageAnalysis (ChatTurn[] request, [FromServices] AutoDamageAnalysisChatService autoDamageAnalysisChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            await foreach (var chunk in autoDamageAnalysisChatService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
             {
                 yield return chunk;
             }
