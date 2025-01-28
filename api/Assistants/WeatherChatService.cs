@@ -7,6 +7,7 @@ using Azure.AI.OpenAI;
 using Azure.Core;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 
@@ -89,15 +90,9 @@ internal sealed class WeatherChatService
         var userMessage = await PromptService.RenderPromptAsync(kernel, PromptService.GetPromptByName("WeatherChatUserPrompt"), context);
         chatHistory.AddUserMessage(userMessage);
 
-        OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
-        {
-            ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-            MaxTokens = 1024
-
-        };
-  
+        var executionSettings = new OpenAIPromptExecutionSettings { FunctionChoiceBehavior = FunctionChoiceBehavior.Auto() };
         var sb = new StringBuilder();
-        await foreach (StreamingChatMessageContent responseChunk in chatGpt.GetStreamingChatMessageContentsAsync(chatHistory, openAIPromptExecutionSettings, kernel, cancellationToken))
+        await foreach (StreamingChatMessageContent responseChunk in chatGpt.GetStreamingChatMessageContentsAsync(chatHistory, executionSettings, kernel, cancellationToken))
         {
             if (responseChunk.Content != null)
             {
