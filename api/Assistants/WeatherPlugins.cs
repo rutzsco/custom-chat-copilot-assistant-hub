@@ -10,6 +10,13 @@ namespace MinimalApi.Services.Skills;
 
 public class WeatherPlugins
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public WeatherPlugins(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+
     [KernelFunction("GetForcast")]
     [Description("Determine the location latitude and longitude based on user request")]
     [return: Description("A weather forcast")]
@@ -17,15 +24,16 @@ public class WeatherPlugins
                                                   KernelArguments arguments,
                                                   Kernel kernel)
     {
-        string url = $"https://api.weather.gov/points/{LocationPoint.Latitude},{LocationPoint.Longitude}";
 
-        var httpClient = new HttpClient();
+        using var httpClient = _httpClientFactory.CreateClient("WeatherAPI");
         httpClient.DefaultRequestHeaders.Add("User-Agent", "app");
-        HttpResponseMessage response = await httpClient.GetAsync(url);
+
+        var response = await httpClient.GetAsync($"points/{LocationPoint.Latitude},{LocationPoint.Longitude}");
         response.EnsureSuccessStatusCode();
+
         // Parse the response body
         string responseBody = await response.Content.ReadAsStringAsync();
-        JObject json = JObject.Parse(responseBody);
+        var json = JObject.Parse(responseBody);
 
         // Extract the forecast URL from the JSON response
         string forecastUrl = json["properties"]["forecast"].ToString();

@@ -1,10 +1,4 @@
-﻿//using Azure.Storage.Blobs;
-//using Azure.Storage.Blobs.Models;
-
-using Azure.AI.OpenAI;
-using Azure;
-using Microsoft.SemanticKernel;
-using Microsoft.Azure.Cosmos.Fluent;
+﻿using Microsoft.SemanticKernel;
 using MinimalApi.Services;
 using MinimalApi.Services.Skills;
 
@@ -14,6 +8,10 @@ namespace Assistants.API.Core
     {
         internal static IServiceCollection AddAzureServices(this IServiceCollection services)
         {
+            services.AddHttpClient("WeatherAPI", client =>
+            {
+                client.BaseAddress = new Uri("https://api.weather.gov/");
+            });
 
             services.AddSingleton<OpenAIClientFacade>(sp =>
             {
@@ -50,8 +48,8 @@ namespace Assistants.API.Core
                    .Build();
 
                 // Build Plugins
-                kernel3.Plugins.AddFromType<WeatherPlugins>("Weather");
-                kernel4.Plugins.AddFromType<WeatherPlugins>("Weather");
+                kernel3.Plugins.AddFromObject(new WeatherPlugins(sp.GetRequiredService<IHttpClientFactory>()));
+                kernel4.Plugins.AddFromObject(new WeatherPlugins(sp.GetRequiredService<IHttpClientFactory>()));
                 autoBody.Plugins.AddFromType<AutoDamageAnalysisTools>("AutoDamageAnalysisTools");
 
                 var facade =  new OpenAIClientFacade(deployedModelName3, kernel3, deployedModelName4, kernel4);
