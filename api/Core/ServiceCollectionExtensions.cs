@@ -1,17 +1,32 @@
 ﻿using Microsoft.SemanticKernel;
 using MinimalApi.Services;
 using MinimalApi.Services.Skills;
+using System.Net.Http.Headers;
+using System.Net.Http;
+using System.Text;
 
 namespace Assistants.API.Core
 {
     internal static class ServiceCollectionExtensions
     {
-        internal static IServiceCollection AddAzureServices(this IServiceCollection services)
+        internal static IServiceCollection AddAzureServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpClient("WeatherAPI", client =>
             {
                 client.BaseAddress = new Uri("https://api.weather.gov/");
             });
+
+            services.AddHttpClient("ServiceNowAPI", client =>
+            {
+                string serviceNowInstanceUrl = configuration["ServiceNowInstanceUrl"];
+                string serviceNowUsername = configuration["ServiceNowUsername"];
+                string serviceNowPassword = configuration["ServiceNowPassword"];
+                client.BaseAddress = new Uri(serviceNowInstanceUrl);
+                var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{serviceNowUsername}:{serviceNowPassword}"));
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
+            });
+
+
 
             services.AddSingleton<OpenAIClientFacade>(sp =>
             {
@@ -50,6 +65,8 @@ namespace Assistants.API.Core
                 // Build Plugins
                 kernel3.Plugins.AddFromObject(new WeatherPlugins(sp.GetRequiredService<IHttpClientFactory>()));
                 kernel4.Plugins.AddFromObject(new WeatherPlugins(sp.GetRequiredService<IHttpClientFactory>()));
+                kernel3.Plugins.AddFromObject(new ServiceNowPlugins(sp.GetRequiredService<IHttpClientFactory>()));
+                kernel4.Plugins.AddFromObject(new ServiceNowPlugins(sp.GetRequiredService<IHttpClientFactory>()));
                 autoBody.Plugins.AddFromType<AutoDamageAnalysisTools>("AutoDamageAnalysisTools");
 
                 var facade =  new OpenAIClientFacade(deployedModelName3, kernel3, deployedModelName4, kernel4);
@@ -58,6 +75,7 @@ namespace Assistants.API.Core
             });
 
             services.AddSingleton<WeatherChatService>();
+            services.AddSingleton<ServiceNowChatService>();
             services.AddSingleton<AutoDamageAnalysisChatService>();
             return services;
         }

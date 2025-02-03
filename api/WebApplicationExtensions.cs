@@ -13,11 +13,12 @@ namespace Assistants.API
             var api = app.MapGroup("api");
             api.MapPost("chat/weather", ProcessWeatherRequest);
             api.MapPost("chat/autobodydamageanalysis", ProcessAutoDamageAnalysis);
+            api.MapPost("chat/servicenow", ProcessServiceNowRequest);
 
-            api.MapGet("weather", ProcessWeatherPluginGet);
+            api.MapGet("status", ProcessStatusGet);
             return app;
         }
-        private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] WeatherChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] ServiceNowChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             await foreach (var chunk in weatherChatService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
             {
@@ -33,8 +34,15 @@ namespace Assistants.API
             }
         }
 
- 
-        private static async Task<IResult> ProcessWeatherPluginGet(string latitude, string longitude)
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessServiceNowRequest(ChatTurn[] request, [FromServices] ServiceNowChatService aiService, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            await foreach (var chunk in aiService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
+            {
+                yield return chunk;
+            }
+        }
+
+        private static async Task<IResult> ProcessStatusGet(string latitude, string longitude)
         {
             return Results.Ok("OK");
         }

@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Services\Prompts\AutoBodyChatSystemPrompt.txt" />
+    <EmbeddedResource Include="Services\Prompts\ServiceNowUserPrompt.txt" />
+    <EmbeddedResource Include="Services\Prompts\ServiceNowSystemPrompt.txt" />
     <EmbeddedResource Include="Services\Prompts\WeatherChatUserPrompt.txt" />
     <EmbeddedResource Include="Services\Prompts\WeatherLatLongSystemPrompt.txt" />
     <EmbeddedResource Include="Services\Prompts\WeatherChatSystemPrompt.txt" />
