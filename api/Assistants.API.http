@@ -1,4 +1,4 @@
-@baseUrl = https://localhost:32771
+@baseUrl = https://localhost:32773
 
 
 // C1
@@ -8,7 +8,7 @@ Content-Type: application/json
 
 [
   {
-    "user": "What is the forcast for Mankato MN"
+    "user": "What is the forcast"
   }
 ]
 
