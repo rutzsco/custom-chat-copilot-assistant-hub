@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Assistants.Hub.API.Assistants.ServiceNow;
 using Microsoft.SemanticKernel;
 
 namespace MinimalApi.Services.Skills;
@@ -38,30 +38,33 @@ public class ServiceNowPlugins
         {
             throw new InvalidOperationException("Failed to parse incidents from ServiceNow", ex);
         }
-
-    }
-    public class IncidentResponse
-    {
-        [JsonPropertyName("result")]
-        public List<Incident> Result { get; set; }
     }
 
-
-    public class Incident
+    [KernelFunction("GetTickets")]
+    [Description("Get current tickets for a provided user from Service Now")]
+    [return: Description("A list of tickets for a given user")]
+    public async Task<List<Incident>> GetTicketsFromServiceNowAsync([Description("The user id of the current user")] string userId, KernelArguments arguments)
     {
-        [JsonPropertyName("number")]
-        public string Number { get; set; }
+        using var httpClient = _httpClientFactory.CreateClient("ServiceNowAPI");
 
-        [JsonPropertyName("short_description")]
-        public string ShortDescription { get; set; }
+        var query = $"caller_id={userId}^active=true";
+        var endpoint = $"api/now/table/ticket?sysparm_query={Uri.EscapeDataString(query)}";
 
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
+        var response = await httpClient.GetAsync(endpoint);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException("Failed to retrieve incidents from ServiceNow");
+        }
 
-        [JsonPropertyName("priority")]
-        public string Priority { get; set; }
-
-        [JsonPropertyName("active")]
-        public string Active { get; set; }
+        try
+        {
+            var payloadString = await response.Content.ReadAsStringAsync();
+            var incidentResponse = JsonSerializer.Deserialize<IncidentResponse>(payloadString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            return incidentResponse.Result;
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Failed to parse incidents from ServiceNow", ex);
+        }
     }
 }
