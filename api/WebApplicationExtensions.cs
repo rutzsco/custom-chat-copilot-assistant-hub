@@ -3,6 +3,8 @@ using Assistants.API.Core;
 using Microsoft.AspNetCore.Mvc;
 using MinimalApi.Services;
 using System.Runtime.CompilerServices;
+using Microsoft.Agents.Hosting.AspNetCore;
+using Microsoft.Agents.Protocols.Primitives;
 
 namespace Assistants.API
 {
@@ -16,6 +18,8 @@ namespace Assistants.API
             api.MapPost("chat/servicenow", ProcessServiceNowRequest);
 
             api.MapGet("status", ProcessStatusGet);
+
+            api.MapPost("messages", ProcessAgentRequest);
             return app;
         }
         private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] ServiceNowChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -45,6 +49,11 @@ namespace Assistants.API
         private static async Task<IResult> ProcessStatusGet(string latitude, string longitude)
         {
             return Results.Ok("OK");
+        }
+
+        private static async Task ProcessAgentRequest(HttpRequest request, HttpResponse response,[FromServices] IBotHttpAdapter adapter, IBot bot, CancellationToken cancellationToken)
+        {
+            await adapter.ProcessAsync(request, response, bot, cancellationToken);
         }
     }
 }
