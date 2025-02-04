@@ -46,7 +46,7 @@ namespace Assistants.API
             }
         }
 
-        private static async Task<IResult> ProcessStatusGet(string latitude, string longitude)
+        private static async Task<IResult> ProcessStatusGet()
         {
             return Results.Ok("OK");
         }
