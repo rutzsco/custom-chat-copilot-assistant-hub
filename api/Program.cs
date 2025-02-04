@@ -1,5 +1,7 @@
 using Assistants.API;
 using Assistants.API.Core;
+using Assistants.Hub.API;
+using Microsoft.Agents.Protocols.Primitives;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAzureServices(builder.Configuration);
+builder.AddBot<IBot, BotHandler>();
 
 var app = builder.Build();
 
