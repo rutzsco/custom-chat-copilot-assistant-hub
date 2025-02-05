@@ -22,7 +22,7 @@ namespace Assistants.API
             api.MapPost("messages", ProcessAgentRequest);
             return app;
         }
-        private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] ServiceNowChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] WeatherChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             await foreach (var chunk in weatherChatService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
             {

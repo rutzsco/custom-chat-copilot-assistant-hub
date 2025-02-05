@@ -24,3 +24,13 @@ Content-Type: application/json
   }
 ]
 
+### Service Now
+
+POST {{baseUrl}}/api/chat/servicenow
+Content-Type: application/json
+
+[
+  {
+    "user": "Are their any incidents impacting VPN?"
+  }
+]
