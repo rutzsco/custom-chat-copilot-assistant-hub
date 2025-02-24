@@ -30,8 +30,6 @@ namespace Assistants.API.Core
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
             });
 
-
-
             services.AddSingleton<OpenAIClientFacade>(sp =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();
