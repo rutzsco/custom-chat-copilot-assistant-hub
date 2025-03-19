@@ -75,6 +75,6 @@ internal sealed class AutoDamageAnalysisChatService
         }
         sw.Stop();
 
-        yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString()));
+        yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString(), null));
     }
 }

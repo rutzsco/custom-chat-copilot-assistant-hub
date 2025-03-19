@@ -32,9 +32,9 @@ internal sealed class RAGChatService
         var kernel = _openAIClientFacade.BuildKernel("RAG");
         var chatGpt = kernel.Services.GetService<IChatCompletionService>();
         ArgumentNullException.ThrowIfNull(chatGpt, nameof(chatGpt));
-        var agent = AgentDefinitionService.GetAgentDefinition(agentName);
-        //var context = new KernelArguments();
-        //context["VectorSearchSettings"] = agent.VectorSearchSettings;
+
+        var agent = RAGAgentDefinitionService.GetAgentDefinition(agentName);
+        ArgumentNullException.ThrowIfNull(agent, nameof(agent));
 
         kernel.Data["VectorSearchSettings"] = agent.VectorSearchSettings;
 
@@ -61,6 +61,7 @@ internal sealed class RAGChatService
         }
         sw.Stop();
 
-        yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString()));
+        var thoughtProcess = kernel.GetThoughtProcess(agent.SystemPrompt, sb.ToString()).ToList();
+        yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString(), thoughtProcess));
     }
 }

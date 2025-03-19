@@ -3,13 +3,13 @@ using System.Numerics;
 
 namespace Assistants.Hub.API.Assistants.RAG
 {
-    public static class AgentDefinitionService
+    public static class RAGAgentDefinitionService
     {
         public static AgentDefinition GetAgentDefinition(string id)
         {
             return new AgentDefinition("autoserviceadvisor", "AutoServiceRAGChatSystemPrompt", new VectorSearchSettings(
                 IndexName: "manuals-auto-ci-20240528182950",
-                DocumentCount: 25,
+                DocumentCount: 10,
                 EmbeddingFieldName: "embeddings",
                 EmbeddingModelName: "text-embedding",
                 MaxSourceTokens: 12000,

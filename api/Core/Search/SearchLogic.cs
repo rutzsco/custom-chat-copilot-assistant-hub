@@ -22,7 +22,7 @@ public class SearchLogic<T> where T : IKnowledgeSource
         _settings = settings;
     }
 
-    public async Task<IEnumerable<KnowledgeSource>> SearchAsync(string query)
+    public async Task<List<KnowledgeSource>> SearchAsync(string query)
     {
         // Generate the embedding for the query
         var queryEmbeddings = await GenerateEmbeddingsAsync(query, _openAIClient);
@@ -61,7 +61,7 @@ public class SearchLogic<T> where T : IKnowledgeSource
 
         // Filter the results by the maximum request token size
         var sources = FilterByMaxRequestTokenSize(list, _settings.MaxSourceTokens, _settings.CitationUseSourcePage);
-        return sources;
+        return sources.ToList();
     }
 
     private IEnumerable<KnowledgeSource> FilterByMaxRequestTokenSize(IReadOnlyList<T> sources, int maxRequestTokens, bool citationUseSourcePage)
