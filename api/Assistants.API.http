@@ -34,3 +34,14 @@ Content-Type: application/json
     "user": "Are their any incidents impacting VPN?"
   }
 ]
+
+### Auto
+
+POST {{baseUrl}}/api/chat/rag/autoserviceadvisor
+Content-Type: application/json
+
+[
+  {
+    "user": "What type of oil do I need?"
+  }
+]

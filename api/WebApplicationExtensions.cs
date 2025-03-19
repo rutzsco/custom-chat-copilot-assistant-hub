@@ -5,6 +5,7 @@ using MinimalApi.Services;
 using System.Runtime.CompilerServices;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Protocols.Primitives;
+using Assistants.Hub.API.Assistants.RAG;
 
 namespace Assistants.API
 {
@@ -16,6 +17,7 @@ namespace Assistants.API
             api.MapPost("chat/weather", ProcessWeatherRequest);
             api.MapPost("chat/autobodydamageanalysis", ProcessAutoDamageAnalysis);
             api.MapPost("chat/servicenow", ProcessServiceNowRequest);
+            api.MapPost("chat/rag/{agentName}", ProcessRagRequest);
 
             api.MapGet("status", ProcessStatusGet);
 
@@ -41,6 +43,14 @@ namespace Assistants.API
         private static async IAsyncEnumerable<ChatChunkResponse> ProcessServiceNowRequest(ChatTurn[] request, [FromServices] ServiceNowChatService aiService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             await foreach (var chunk in aiService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
+            {
+                yield return chunk;
+            }
+        }
+
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessRagRequest(string agentName, ChatTurn[] request, [FromServices] RAGChatService aiService, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            await foreach (var chunk in aiService.ReplyPlannerAsync(agentName, request).WithCancellation(cancellationToken))
             {
                 yield return chunk;
             }

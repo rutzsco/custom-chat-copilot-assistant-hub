@@ -29,7 +29,7 @@ internal sealed class ServiceNowChatService
         var sw = Stopwatch.StartNew();
 
         // Kernel setup
-        var kernel = _openAIClientFacade.GetKernel(false);
+        var kernel = _openAIClientFacade.BuildKernel("ServiceNow");
 
         var context = new KernelArguments();
         context["chatMessages"] = chatMessages;

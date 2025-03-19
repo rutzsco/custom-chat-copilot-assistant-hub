@@ -1,48 +1,79 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Azure.AI.OpenAI;
+using Azure.Core;
+using Azure;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.SemanticKernel;
+using MinimalApi.Services.Search;
+using MinimalApi.Services.Skills;
+using Assistants.Hub.API.Assistants.RAG;
 
 namespace Assistants.API.Core
 {
     public class OpenAIClientFacade
     {
-        // Dictionary to hold kernels based on their version deployment names
-        private Dictionary<string, Kernel> kernels = new Dictionary<string, Kernel>();
-        string _kernel3DeploymentName = "";
-        string _kernel4DeploymentName = "";
+        private readonly IConfiguration _config;
+        private readonly string _standardChatGptDeployment;
+        private readonly string _standardServiceEndpoint;
+        private readonly TokenCredential _tokenCredential;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly SearchClientFactory _searchClientFactory;
+        private readonly AzureKeyCredential _azureKeyCredential;
 
-        // Constructor initializing the facade with two kernels
-        public OpenAIClientFacade(string kernel3DeploymentName, Kernel kernel3, string kernel4DeploymentName, Kernel kernel4)
+        private readonly AzureOpenAIClient _standardChatGptClient;
+
+        public OpenAIClientFacade(IConfiguration configuration, AzureKeyCredential azureKeyCredential, TokenCredential tokenCredential, IHttpClientFactory httpClientFactory, SearchClientFactory searchClientFactory)
         {
-            _kernel3DeploymentName = kernel3DeploymentName;
-            _kernel4DeploymentName = kernel4DeploymentName;
-            kernels[kernel3DeploymentName] = kernel3;
-            kernels[kernel4DeploymentName] = kernel4;
+            _config = configuration;
+            _standardChatGptDeployment = configuration[AppConfigurationSetting.AOAIStandardChatGptDeployment];
+            _standardServiceEndpoint = configuration[AppConfigurationSetting.AOAIStandardServiceEndpoint];
+
+            _azureKeyCredential = azureKeyCredential;
+            _tokenCredential = tokenCredential;
+            _httpClientFactory = httpClientFactory;
+            _searchClientFactory = searchClientFactory;
+
+            if (azureKeyCredential != null)
+                _standardChatGptClient = new AzureOpenAIClient(new Uri(_standardServiceEndpoint), _azureKeyCredential);
+            else
+                _standardChatGptClient = new AzureOpenAIClient(new Uri(_standardServiceEndpoint), _tokenCredential);
         }
 
-        public void RegisterKernel(string deploymentName, Kernel kernel)
+        public string GetKernelDeploymentName()
         {
-            kernels[deploymentName] = kernel;
+            return _standardChatGptDeployment;
         }
 
-        // Retrieves the kernel based on the deployment name
-        public Kernel GetKernelByDeploymentName(string deploymentName)
+        public Kernel BuildKernel(string toolPackage)
         {
-            if (kernels.ContainsKey(deploymentName))
+            //var knowledgePlugin = new ServiceNowRetrievalPlugins(_config, _searchClientFactory, _standardChatGptClient);
+            //var serviceNowPlugin = new ServiceNowPlugins(_httpClientFactory, _cache);
+
+            var kernel = BuildKernelBasedOnIdentity();
+            if (toolPackage == "RAG")
             {
-                return kernels[deploymentName];
+                kernel.ImportPluginFromObject(new RAGRetrivalPlugins(_searchClientFactory, _standardChatGptClient), "RAGChat");
             }
-            throw new ArgumentException("Deployment name not recognized.");
+            //kernel.ImportPluginFromObject(knowledgePlugin, DefaultSettings.DocumentRetrievalPluginName);
+            //kernel.ImportPluginFromObject(serviceNowPlugin, "ServiceNow");
+
+            return kernel;
         }
 
-        // Public method to retrieve kernel using a boolean flag to determine which version
-        public Kernel GetKernel(bool useChatGPT4)
+        private Kernel BuildKernelBasedOnIdentity()
         {
-            return useChatGPT4 ? GetKernelByDeploymentName(_kernel4DeploymentName) : GetKernelByDeploymentName(_kernel3DeploymentName);
-        }
+            if (_azureKeyCredential != null)
+            {
+                var keyKernel = Kernel.CreateBuilder()
+                    .AddAzureOpenAIChatCompletion(_standardChatGptDeployment, _standardServiceEndpoint, _config[AppConfigurationSetting.AOAIStandardServiceKey])
+                    .Build();
+                return keyKernel;
+            }
 
-        // Public method to retrieve the kernel deployment name using a boolean flag
-        public string GetKernelDeploymentName(bool useChatGPT4)
-        {
-            return useChatGPT4 ? _kernel4DeploymentName : _kernel3DeploymentName;
+            var kernel = Kernel.CreateBuilder()
+           .AddAzureOpenAIChatCompletion(_standardChatGptDeployment, _standardServiceEndpoint, _tokenCredential)
+           .Build();
+
+            return kernel;
         }
     }
 

@@ -34,7 +34,7 @@ internal sealed class AutoDamageAnalysisChatService
         var sw = Stopwatch.StartNew();
 
         // setup
-        var kernel = _openAIClientFacade.GetKernelByDeploymentName("AutoDamageAnalysis");
+        var kernel = _openAIClientFacade.BuildKernel("AutoDamage");
         var chatGpt = kernel.Services.GetService<IChatCompletionService>();
         ArgumentNullException.ThrowIfNull(chatGpt, nameof(chatGpt));
 

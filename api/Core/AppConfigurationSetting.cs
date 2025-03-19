@@ -29,5 +29,9 @@
         public static string AOAIPremiumChatGptDeployment { get; } = "AOAIPremiumChatGptDeployment";
         public static string AOAIPremiumServiceEndpoint { get; } = "AOAIPremiumServiceEndpoint";
         public static string AOAIPremiumServiceKey { get; } = "AOAIPremiumServiceKey";
+
+
+        public static string AzureSearchServiceEndpoint { get; } = "AzureSearchServiceEndpoint";
+        public static string AzureSearchServiceKey { get; } = "AzureSearchServiceKey";
     }
 }

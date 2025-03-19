@@ -8,6 +8,9 @@ using Microsoft.Agents.Authentication;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Protocols.Connector;
 using Microsoft.Agents.Protocols.Primitives;
+using MinimalApi.Services.Search;
+using Assistants.Hub.API.Assistants.RAG;
+using Azure;
 
 namespace Assistants.API.Core
 {
@@ -29,53 +32,24 @@ namespace Assistants.API.Core
                 var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{serviceNowUsername}:{serviceNowPassword}"));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
             });
-
+            services.AddSingleton<SearchClientFactory>(sp =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                return new SearchClientFactory(config, null, new AzureKeyCredential(config[AppConfigurationSetting.AzureSearchServiceKey]));
+            });
             services.AddSingleton<OpenAIClientFacade>(sp =>
             {
                 var config = sp.GetRequiredService<IConfiguration>();
-                var deployedModelName3 = config[AppConfigurationSetting.AOAIStandardChatGptDeployment];
-                var azureOpenAiServiceEndpoint3 = config[AppConfigurationSetting.AOAIStandardServiceEndpoint];
-                var azureOpenAiServiceKey3 = config[AppConfigurationSetting.AOAIStandardServiceKey];
-
-                ArgumentException.ThrowIfNullOrEmpty(deployedModelName3);
-                ArgumentException.ThrowIfNullOrEmpty(azureOpenAiServiceEndpoint3);
-                ArgumentException.ThrowIfNullOrEmpty(azureOpenAiServiceKey3);
-
-                var deployedModelName4 = config[AppConfigurationSetting.AOAIPremiumChatGptDeployment];
-                var azureOpenAiServiceEndpoint4 = config[AppConfigurationSetting.AOAIPremiumServiceEndpoint];
-                var azureOpenAiServiceKey4 = config[AppConfigurationSetting.AOAIPremiumServiceKey];
-                ArgumentException.ThrowIfNullOrEmpty(deployedModelName4);
-                ArgumentException.ThrowIfNullOrEmpty(azureOpenAiServiceEndpoint4);
-                ArgumentException.ThrowIfNullOrEmpty(azureOpenAiServiceKey4);
+                var standardChatGptDeployment = config["AOAIStandardChatGptDeployment"];
+                var standardServiceEndpoint = config["AOAIStandardServiceEndpoint"];
+                var standardServiceKey = config["AOAIStandardServiceKey"];
 
 
-
-                // Build Kernels
-                Kernel kernel3 = Kernel.CreateBuilder()
-                   .AddAzureOpenAIChatCompletion(deployedModelName3, azureOpenAiServiceEndpoint3, azureOpenAiServiceKey3)
-                   .Build();
-
-                Kernel kernel4 = Kernel.CreateBuilder()
-                   .AddAzureOpenAIChatCompletion(deployedModelName4, azureOpenAiServiceEndpoint4, azureOpenAiServiceKey4)
-                   .Build();
-
-
-                Kernel autoBody = Kernel.CreateBuilder()
-                   .AddAzureOpenAIChatCompletion(deployedModelName3, azureOpenAiServiceEndpoint3, azureOpenAiServiceKey3)
-                   .Build();
-
-                // Build Plugins
-                kernel3.Plugins.AddFromObject(new WeatherPlugins(sp.GetRequiredService<IHttpClientFactory>()));
-                kernel4.Plugins.AddFromObject(new WeatherPlugins(sp.GetRequiredService<IHttpClientFactory>()));
-                kernel3.Plugins.AddFromObject(new ServiceNowPlugins(sp.GetRequiredService<IHttpClientFactory>()));
-                kernel4.Plugins.AddFromObject(new ServiceNowPlugins(sp.GetRequiredService<IHttpClientFactory>()));
-                autoBody.Plugins.AddFromType<AutoDamageAnalysisTools>("AutoDamageAnalysisTools");
-
-                var facade =  new OpenAIClientFacade(deployedModelName3, kernel3, deployedModelName4, kernel4);
-                facade.RegisterKernel("AutoDamageAnalysis", autoBody);
+                var facade =  new OpenAIClientFacade(configuration, new Azure.AzureKeyCredential(standardServiceKey), null, sp.GetRequiredService<IHttpClientFactory>(), sp.GetRequiredService<SearchClientFactory>());
                 return facade;
             });
 
+            services.AddSingleton<RAGChatService>();
             services.AddSingleton<WeatherChatService>();
             services.AddSingleton<ServiceNowChatService>();
             services.AddSingleton<AutoDamageAnalysisChatService>();
