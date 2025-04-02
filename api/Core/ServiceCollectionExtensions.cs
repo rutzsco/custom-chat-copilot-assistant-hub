@@ -11,6 +11,7 @@ using Microsoft.Agents.Protocols.Primitives;
 using MinimalApi.Services.Search;
 using Assistants.Hub.API.Assistants.RAG;
 using Azure;
+using Assistants.Hub.API.Assistants;
 
 namespace Assistants.API.Core
 {
@@ -49,6 +50,7 @@ namespace Assistants.API.Core
                 return facade;
             });
 
+            services.AddSingleton<AutoAdvisorAgent>();
             services.AddSingleton<RAGChatService>();
             services.AddSingleton<WeatherChatService>();
             services.AddSingleton<ServiceNowChatService>();

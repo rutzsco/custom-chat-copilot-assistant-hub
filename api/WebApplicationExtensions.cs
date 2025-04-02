@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 using Microsoft.Agents.Hosting.AspNetCore;
 using Microsoft.Agents.Protocols.Primitives;
 using Assistants.Hub.API.Assistants.RAG;
+using Assistants.Hub.API.Assistants;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.SemanticKernel.Services;
 
 namespace Assistants.API
 {
@@ -19,9 +22,9 @@ namespace Assistants.API
             api.MapPost("chat/servicenow", ProcessServiceNowRequest);
             api.MapPost("chat/rag/{agentName}", ProcessRagRequest);
 
-            api.MapGet("status", ProcessStatusGet);
+            api.MapPost("chat/agent", ProcessAgentRequestV2);
 
-            api.MapPost("messages", ProcessAgentRequest);
+            api.MapGet("status", ProcessStatusGet);
             return app;
         }
         private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] WeatherChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -51,6 +54,13 @@ namespace Assistants.API
         private static async IAsyncEnumerable<ChatChunkResponse> ProcessRagRequest(string agentName, ChatTurn[] request, [FromServices] RAGChatService aiService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             await foreach (var chunk in aiService.ReplyPlannerAsync(agentName, request).WithCancellation(cancellationToken))
+            {
+                yield return chunk;
+            }
+        }
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessAgentRequestV2(ChatTurn[] request, [FromServices] AutoAdvisorAgent agent, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            await foreach (var chunk in agent.Execute(request).WithCancellation(cancellationToken))
             {
                 yield return chunk;
             }

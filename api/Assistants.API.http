@@ -1,5 +1,5 @@
-@baseUrl = https://localhost:32769
-
+@baseUrl = https://localhost:32777
+#@baseUrl = https://assistanthubservice.redsand-8dccfc71.eastus.azurecontainerapps.io
 
 // C1
 
@@ -43,5 +43,16 @@ Content-Type: application/json
 [
   {
     "user": "What type of oil do I need?"
+  }
+]
+
+### Agent
+
+POST {{baseUrl}}/api/chat/agent
+Content-Type: application/json
+
+[
+  {
+    "user": "I need to solve the equation 3x + 11 = 14. Can you help me?"
   }
 ]
