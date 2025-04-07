@@ -53,6 +53,10 @@ namespace Assistants.API.Core
             {
                 kernel.ImportPluginFromObject(new RAGRetrivalPlugins(_searchClientFactory, _standardChatGptClient), "RAGChat");
             }
+            if (toolPackage == "DATAMAPPING")
+            {
+                kernel.ImportPluginFromObject(new DataMapperPlugins(_httpClientFactory, _config), "DATAMAPPING");
+            }
             //kernel.ImportPluginFromObject(knowledgePlugin, DefaultSettings.DocumentRetrievalPluginName);
             //kernel.ImportPluginFromObject(serviceNowPlugin, "ServiceNow");
 

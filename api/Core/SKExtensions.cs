@@ -57,5 +57,16 @@ namespace Assistants.API.Core
             }
             yield return new ExecutionStepResult("chat_completion", $"{systemPrompt} \n {answer}");
         }
+
+        public static string ReadFileContent(this string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentException("File name cannot be null or empty.", nameof(fileName));
+
+            if (!File.Exists(fileName))
+                throw new FileNotFoundException("File not found.", fileName);
+
+            return File.ReadAllText(fileName);
+        }
     }
 }

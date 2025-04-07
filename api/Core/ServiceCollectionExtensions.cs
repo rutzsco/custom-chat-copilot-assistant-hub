@@ -49,7 +49,7 @@ namespace Assistants.API.Core
                 var facade =  new OpenAIClientFacade(configuration, new Azure.AzureKeyCredential(standardServiceKey), null, sp.GetRequiredService<IHttpClientFactory>(), sp.GetRequiredService<SearchClientFactory>());
                 return facade;
             });
-
+            services.AddSingleton<DataMapperChatService>();
             services.AddSingleton<AutoAdvisorAgent>();
             services.AddSingleton<RAGChatService>();
             services.AddSingleton<WeatherChatService>();

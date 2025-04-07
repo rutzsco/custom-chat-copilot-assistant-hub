@@ -21,6 +21,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Services\Prompts\AutoServiceRAGChatSystemPrompt.txt" />
     <EmbeddedResource Include="Services\Prompts\AutoBodyChatSystemPrompt.txt" />
+    <EmbeddedResource Include="Services\Prompts\DataMapperSystemPrompt.txt" />
     <EmbeddedResource Include="Services\Prompts\ServiceNowUserPrompt.txt" />
     <EmbeddedResource Include="Services\Prompts\ServiceNowSystemPrompt.txt" />
     <EmbeddedResource Include="Services\Prompts\WeatherChatUserPrompt.txt" />

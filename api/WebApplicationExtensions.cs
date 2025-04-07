@@ -21,7 +21,7 @@ namespace Assistants.API
             api.MapPost("chat/autobodydamageanalysis", ProcessAutoDamageAnalysis);
             api.MapPost("chat/servicenow", ProcessServiceNowRequest);
             api.MapPost("chat/rag/{agentName}", ProcessRagRequest);
-
+            api.MapPost("chat/data-mapping", ProcessDataMappingRequest);
             api.MapPost("chat/agent", ProcessAgentRequestV2);
 
             api.MapGet("status", ProcessStatusGet);
@@ -54,6 +54,14 @@ namespace Assistants.API
         private static async IAsyncEnumerable<ChatChunkResponse> ProcessRagRequest(string agentName, ChatTurn[] request, [FromServices] RAGChatService aiService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             await foreach (var chunk in aiService.ReplyPlannerAsync(agentName, request).WithCancellation(cancellationToken))
+            {
+                yield return chunk;
+            }
+        }
+
+        private static async IAsyncEnumerable<ChatChunkResponse> ProcessDataMappingRequest(ChatTurn[] request, [FromServices] DataMapperChatService aiService, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            await foreach (var chunk in aiService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
             {
                 yield return chunk;
             }
