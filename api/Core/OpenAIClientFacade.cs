@@ -6,6 +6,7 @@ using Microsoft.SemanticKernel;
 using MinimalApi.Services.Search;
 using MinimalApi.Services.Skills;
 using Assistants.Hub.API.Assistants.RAG;
+using Assistants.Hub.API.Assistants.Weather;
 
 namespace Assistants.API.Core
 {
@@ -49,6 +50,10 @@ namespace Assistants.API.Core
             //var serviceNowPlugin = new ServiceNowPlugins(_httpClientFactory, _cache);
 
             var kernel = BuildKernelBasedOnIdentity();
+            if (toolPackage == "WEATHER")
+            {
+                kernel.ImportPluginFromObject(new WeatherPlugins(_httpClientFactory), "WEATHER");
+            }
             if (toolPackage == "RAG")
             {
                 kernel.ImportPluginFromObject(new RAGRetrivalPlugins(_searchClientFactory, _standardChatGptClient), "RAGChat");

@@ -9,6 +9,7 @@ using Assistants.Hub.API.Assistants.RAG;
 using Assistants.Hub.API.Assistants;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.SemanticKernel.Services;
+using Assistants.Hub.API.Assistants.Weather;
 
 namespace Assistants.API
 {
@@ -29,7 +30,7 @@ namespace Assistants.API
         }
         private static async IAsyncEnumerable<ChatChunkResponse> ProcessWeatherRequest(ChatTurn[] request, [FromServices] WeatherChatService weatherChatService, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            await foreach (var chunk in weatherChatService.ReplyPlannerAsync(request).WithCancellation(cancellationToken))
+            await foreach (var chunk in weatherChatService.ExecuteAgentAsync(request).WithCancellation(cancellationToken))
             {
                 yield return chunk;
             }

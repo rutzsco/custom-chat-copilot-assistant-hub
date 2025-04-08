@@ -37,7 +37,8 @@
     <PackageReference Include="Microsoft.Agents.Authentication.Msal" Version="0.1.26" />
     <PackageReference Include="Microsoft.Agents.Hosting.AspNetCore" Version="0.1.26" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.48.0" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.42.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.45.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.45.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.0" />

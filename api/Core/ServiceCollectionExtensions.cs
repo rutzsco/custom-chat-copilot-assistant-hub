@@ -12,6 +12,7 @@ using MinimalApi.Services.Search;
 using Assistants.Hub.API.Assistants.RAG;
 using Azure;
 using Assistants.Hub.API.Assistants;
+using Assistants.Hub.API.Assistants.Weather;
 
 namespace Assistants.API.Core
 {

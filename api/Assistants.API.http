@@ -1,4 +1,4 @@
-@baseUrl = https://localhost:32777
+@baseUrl = https://localhost:44337
 #@baseUrl = https://assistanthubservice.redsand-8dccfc71.eastus.azurecontainerapps.io
 
 // C1

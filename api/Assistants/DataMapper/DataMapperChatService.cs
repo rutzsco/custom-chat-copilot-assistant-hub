@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Assistants.API.Core;
 using Assistants.API.Services.Prompts;
+using Assistants.Hub.API.Assistants.Weather;
 using Azure.AI.OpenAI;
 using Azure.Core;
 using Microsoft.SemanticKernel;

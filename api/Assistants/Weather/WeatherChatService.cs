@@ -7,12 +7,13 @@ using Assistants.API.Services.Prompts;
 using Azure.AI.OpenAI;
 using Azure.Core;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 
-namespace MinimalApi.Services;
+namespace Assistants.Hub.API.Assistants.Weather;
 
 internal sealed class WeatherChatService
 {
@@ -29,7 +30,7 @@ internal sealed class WeatherChatService
         _configuration = configuration;
     }
 
-    public async IAsyncEnumerable<ChatChunkResponse> ReplyPlannerAsync(ChatTurn[] chatMessages, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<ChatChunkResponse> ExecuteChatAsync(ChatTurn[] chatMessages, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var sw = Stopwatch.StartNew();
 
@@ -60,6 +61,45 @@ internal sealed class WeatherChatService
             }
         }
         sw.Stop();
+
+        yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString(), null));
+    }
+
+    public async IAsyncEnumerable<ChatChunkResponse> ExecuteAgentAsync(ChatTurn[] chatMessages, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var sw = Stopwatch.StartNew();
+
+        // Kernel setup
+        var kernel = _openAIClientFacade.BuildKernel("WEATHER");
+
+        // Create the agent
+        ChatCompletionAgent agent = new()
+        {
+            Name = "WeatherAgent",
+            Instructions = PromptService.GetPromptByName("WeatherChatSystemPrompt"),
+            Kernel = kernel,
+            Arguments = new KernelArguments(new OpenAIPromptExecutionSettings()
+            {
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+            }),
+        };
+
+        var context = new KernelArguments();
+        context["chatMessages"] = chatMessages;
+        context["question"] = chatMessages.LastOrDefault()?.User;
+
+        // Generate the agent response(s)
+        var sb = new StringBuilder();
+        ChatHistoryAgentThread agentThread = new();
+        await foreach (StreamingChatMessageContent responseChunk in agent.InvokeStreamingAsync(new ChatMessageContent(AuthorRole.User, chatMessages.LastOrDefault()?.User), agentThread, new() { KernelArguments = context }))
+        {
+            if (responseChunk.Content != null)
+            {
+                sb.Append(responseChunk.Content);
+                yield return new ChatChunkResponse(responseChunk.Content);
+                await Task.Yield();
+            }
+        }
 
         yield return new ChatChunkResponse(string.Empty, new ChatChunkResponseResult(sb.ToString(), null));
     }

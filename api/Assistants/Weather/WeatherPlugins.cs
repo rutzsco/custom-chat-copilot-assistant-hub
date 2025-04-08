@@ -6,7 +6,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace MinimalApi.Services.Skills;
+namespace Assistants.Hub.API.Assistants.Weather;
 
 public class WeatherPlugins
 {
