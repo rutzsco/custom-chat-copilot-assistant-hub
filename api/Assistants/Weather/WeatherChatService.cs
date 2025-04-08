@@ -90,14 +90,28 @@ internal sealed class WeatherChatService
 
         // Generate the agent response(s)
         var sb = new StringBuilder();
+        var functionCalls = new List<string>();
         ChatHistoryAgentThread agentThread = new();
         await foreach (StreamingChatMessageContent responseChunk in agent.InvokeStreamingAsync(new ChatMessageContent(AuthorRole.User, chatMessages.LastOrDefault()?.User), agentThread, new() { KernelArguments = context }))
         {
-            if (responseChunk.Content != null)
+            if (!string.IsNullOrEmpty(responseChunk.Content))
             {
                 sb.Append(responseChunk.Content);
                 yield return new ChatChunkResponse(responseChunk.Content);
                 await Task.Yield();
+            }
+            else
+            {
+
+                StreamingFunctionCallUpdateContent? functionCall = responseChunk.Items.OfType<StreamingFunctionCallUpdateContent>().SingleOrDefault();
+                if (!string.IsNullOrEmpty(functionCall?.Name))
+                {
+                    functionCalls.Add(functionCall.Name);
+                    yield return new ChatChunkResponse($"Executing: {functionCall.Name}");
+                }
+
+                continue;
+                
             }
         }
 

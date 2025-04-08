@@ -19,7 +19,7 @@ Content-Type: application/json
 
 [
   {
-    "user": "What is the forcast for Mankato M",
+    "user": "What is the forcast for Mankato MN",
     "assistant": "string"
   }
 ]
